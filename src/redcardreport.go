@@ -99,7 +99,6 @@ func main() {
 	}
 
 	reportText := core.FormatReportText(yesterday, totalRedCards, redCardMatches)
-	fmt.Print(reportText)
 
 	filename := yesterday + "_matches.txt"
 	message := fmt.Sprintf("Red card report for %s: %d total red cards in %d matches", yesterday, totalRedCards, len(redCardMatches))

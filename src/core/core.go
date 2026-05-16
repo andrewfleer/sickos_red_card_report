@@ -140,16 +140,6 @@ func SendDiscordWebhookWithFile(webhookURL, content, filename string, fileConten
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	payload := map[string]string{"content": content}
-	payloadJSON, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-
-	if err := writer.WriteField("payload_json", string(payloadJSON)); err != nil {
-		return err
-	}
-
 	part, err := writer.CreateFormFile("file", filepath.Base(filename))
 	if err != nil {
 		return err
