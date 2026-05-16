@@ -27,7 +27,7 @@ func main() {
 
 	apiKey := os.Getenv("apiKey")
 	apiSecret := os.Getenv("apiSecret")
-	//webhookURL := os.Getenv("webhookURL")
+	webhookURL := os.Getenv("webhookURL")
 
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	baseURL := fmt.Sprintf("https://livescore-api.com/api-client/matches/history.json?key=%s&secret=%s&from=%s&to=%s", apiKey, apiSecret, yesterday, yesterday)
@@ -112,14 +112,13 @@ func main() {
 
 	fmt.Printf("Report written to %s\n", filename)
 
-	/*content := fmt.Sprintf("Total red cards on %s: %d\nMatches with red cards: %d", yesterday, totalRedCards, len(redCardMatches))
+	content := fmt.Sprintf("Total red cards on %s: %d\nMatches with red cards: %d", yesterday, totalRedCards, len(redCardMatches))
 	if err := sendDiscordWebhookWithFile(webhookURL, content, filename); err != nil {
 		fmt.Println("Error sending webhook:", err)
 		return
 	}
 
 	fmt.Println("Webhook sent successfully!")
-	*/
 
 }
 
