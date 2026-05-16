@@ -1,0 +1,38 @@
+name: Red Card Report
+
+on:
+  schedule:
+    # Run daily at 2 PM UTC
+    - cron: '0 14 * * *'
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Build binary
+        run: |
+          cd src
+          go build -o redcardreport .
+
+      - name: Create secrets.env
+        run: |
+          cat > src/secrets.env << EOF
+          apiKey=${{ secrets.API_KEY }}
+          apiSecret=${{ secrets.API_SECRET }}
+          webhookURL=${{ secrets.WEBHOOK_URL }}
+          EOF
+
+      - name: Run Red Card Report
+        run: |
+          cd src
+          ./redcardreport
