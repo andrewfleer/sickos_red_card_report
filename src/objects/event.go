@@ -8,7 +8,7 @@ type Event struct {
 }
 
 type Events struct {
-	Events []Event `json:"events"`
+	Events []Event `json:"event"`
 }
 
 type EventsResponse struct {
