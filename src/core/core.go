@@ -2,6 +2,7 @@ package core
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 
 	"sickos_red_card_report/objects"
 )
@@ -164,4 +167,56 @@ func SendDiscordWebhookWithFile(webhookURL, content, filename string, fileConten
 	}
 
 	return nil
+}
+
+// UpdateRedCardDatabase updates the red card counts in the database
+func UpdateRedCardDatabase(teamRedCards []objects.TeamRedCards, playerRedCards []objects.PlayerRedCards, database_url string) error {
+	conn, err := pgx.Connect(context.Background(), database_url)
+	if err != nil {
+		return fmt.Errorf("error connecting to database: %v", err)
+	}
+	defer conn.Close(context.Background())
+
+	for _, team := range teamRedCards {
+		if team.RedCards > 0 {
+			if err := UpdateTeamRedCards(team, conn); err != nil {
+				return fmt.Errorf("error updating team %s: %v", team.Name, err)
+			}
+		}
+	}
+	for _, player := range playerRedCards {
+		if err := UpdatePlayerRedCards(player, conn); err != nil {
+			return fmt.Errorf("error updating player %s: %v", player.Name, err)
+		}
+	}
+	return nil
+}
+
+// UpdateTeamRedCards updates the red card count for a team in the database
+func UpdateTeamRedCards(team objects.TeamRedCards, conn *pgx.Conn) error {
+	query := `
+		INSERT INTO team_red_cards (team_id, team_name, red_cards, last_updated)
+		VALUES ($1, $2, $3, NOW())
+		ON CONFLICT (team_id) 
+		DO UPDATE SET
+			red_cards = team_red_cards.red_cards + EXCLUDED.red_cards,
+			team_name = EXCLUDED.team_name,
+			last_updated = NOW()
+	`
+	_, err := conn.Exec(context.Background(), query, team.Id, team.Name, team.RedCards)
+	return err
+}
+
+// UpdatePlayerRedCards updates the red card count for a player in the database
+func UpdatePlayerRedCards(player objects.PlayerRedCards, conn *pgx.Conn) error {
+	query := `
+		INSERT INTO player_red_cards (player_name, team_id, red_cards, last_updated)
+		VALUES ($1, $2, $3, NOW())
+		ON CONFLICT (player_name, team_id) 
+		DO UPDATE SET
+			red_cards = player_red_cards.red_cards + EXCLUDED.red_cards,
+			last_updated = NOW()
+	`
+	_, err := conn.Exec(context.Background(), query, player.Name, player.TeamID, player.RedCards)
+	return err
 }
