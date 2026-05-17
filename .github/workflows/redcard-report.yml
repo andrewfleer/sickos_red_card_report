@@ -31,6 +31,7 @@ jobs:
           apiKey=${{ secrets.API_KEY }}
           apiSecret=${{ secrets.API_SECRET }}
           webhookURL=${{ secrets.WEBHOOK_URL }}
+          databaseURL=${{ secrets.DATABASE_URL }}
           EOF
 
       - name: Run Red Card Report
