@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"sickos_red_card_report/core"
 	"sickos_red_card_report/objects"
@@ -21,10 +20,11 @@ func main() {
 
 	apiKey := os.Getenv("apiKey")
 	apiSecret := os.Getenv("apiSecret")
-	webhookURL := os.Getenv("webhookURL")
+	//webhookURL := os.Getenv("webhookURL")
 	databaseURL := os.Getenv("databaseURL")
 
-	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	//yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	yesterday := "2026-01-01"
 	baseURL := fmt.Sprintf("https://livescore-api.com/api-client/matches/history.json?key=%s&secret=%s&from=%s&to=%s", apiKey, apiSecret, yesterday, yesterday)
 
 	totalPages, allMatches, err := core.FetchAllMatches(baseURL)
@@ -139,16 +139,16 @@ func main() {
 		}
 	}
 
-	reportText := core.FormatReportText(yesterday, totalRedCards, redCardMatches)
+	// reportText := core.FormatReportText(yesterday, totalRedCards, redCardMatches)
 
-	filename := yesterday + "_matches.txt"
-	message := fmt.Sprintf("Red card report for %s: %d total red cards in %d matches", yesterday, totalRedCards, len(redCardMatches))
-	if err := core.SendDiscordWebhookWithFile(webhookURL, message, filename, []byte(reportText)); err != nil {
-		fmt.Println("Error sending webhook:", err)
-		return
-	}
+	// filename := yesterday + "_matches.txt"
+	// message := fmt.Sprintf("Red card report for %s: %d total red cards in %d matches", yesterday, totalRedCards, len(redCardMatches))
+	// if err := core.SendDiscordWebhookWithFile(webhookURL, message, filename, []byte(reportText)); err != nil {
+	// 	fmt.Println("Error sending webhook:", err)
+	// 	return
+	// }
 
-	fmt.Println("Webhook sent successfully!")
+	// fmt.Println("Webhook sent successfully!")
 
 	fmt.Println("Updating red card database...")
 	if err := core.UpdateRedCardDatabase(teamRedCards, playerRedCards, databaseURL); err != nil {
